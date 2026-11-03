@@ -1,4 +1,4 @@
-# Recipes — Kotlin Multiplatform REST API client (Лабораторна робота №4–5)
+# Recipes — Kotlin Multiplatform REST API client (Лабораторна робота №4–6)
 
 Compose Multiplatform app (Android, iOS, Desktop) that consumes the open
 [dummyjson](https://dummyjson.com/docs/recipes) **recipes** API.
@@ -30,6 +30,32 @@ REST API client: Ktor (`data/RecipesApi.kt`) → `GET /recipes`, `/recipes/searc
 
 Flow: first launch `Onboarding -> Auth -> Recipes`; after onboarding is passed the app opens `Recipes` directly.
 
+## Lab 6 — authorization over the network, secure token storage
+
+Backend: the open [dummyjson auth API](https://dummyjson.com/docs/auth) (`POST /auth/login`, `POST /auth/refresh`).
+Test account: **`emilys` / `emilyspass`** (any other dummyjson user works as well).
+
+| # | Requirement | Where |
+|---|-------------|-------|
+| 1 | Ktor for networking | `data/network/HttpClients.kt` (plain client for login/refresh, authorized client with the `Auth` plugin) |
+| 2 | KSafe for secure storage | `data/storage/KSafeTokenStorage.kt` (AES-256-GCM, key in Android Keystore / iOS Keychain / OS secret store), KSafe instance: `platform/PlatformModule*.kt` |
+| 3 | Network stack: requests, models, repository, use cases | `data/auth/` (`AuthApi`, DTO, error mapping), `domain/repository/AuthRepository`, `data/repository/AuthRepositoryImpl`, `domain/usecase/` (`LoginUseCase`, `LogoutUseCase`, `RefreshTokensUseCase`, `IsUserAuthorizedUseCase`, `ObserveAuthStateUseCase`) |
+| 4 | Tokens stored securely on the device | `TokenStorage` -> `KSafeTokenStorage` |
+| 5 | Automatic token refresh | Ktor bearer provider: on `401` it calls `RefreshTokensUseCase`, repeats the request with the new tokens; if the server rejects the refresh token the session ends |
+| 6 | MVI of the auth screen connected to use cases | `ui/auth/AuthViewModel` -> `LoginUseCase` |
+| 7 | Error handling + snackbar through events | `AuthContract.Effect.ShowError(AuthFailure)` -> `SnackbarHost` in `AuthScreen` (wrong credentials, no connection, server error, unknown) |
+| 8 | Empty home screen + navigation to it after sign-in | `HomeRoute`, `ui/home/HomeScreen.kt` |
+| 9 | Navigation takes the "user is authorized" flag into account | `MainViewModel` (start screen: onboarding / home / sign-in), `ObserveAuthStateUseCase` in `App.kt` (back to sign-in when the session ends), "Sign out" in Settings |
+
+Flow: `Onboarding -> Auth -> Home`. On the next launches the app opens `Home` straight away while the tokens are stored;
+after sign-out or when the refresh token expires it opens `Auth`.
+
+Tests (`./gradlew :composeApp:desktopTest`): login/errors, `401 -> refresh -> retry`, rejected refresh token, sign-out
+(Ktor `MockEngine`), and a check that Koin resolves the whole auth graph.
+
+Note for Linux desktop: KSafe keeps its key in the OS secret store (libsecret / KWallet). If it is locked or there is
+no D-Bus session, the tokens are kept only in memory for the current run and the user signs in again after a restart.
+
 ## Run
 
 * **Desktop:** `./gradlew :composeApp:run`
@@ -42,6 +68,6 @@ Flow: first launch `Onboarding -> Auth -> Recipes`; after onboarding is passed t
 ## Libraries
 
 Compose Multiplatform 1.10.3 · Kotlin 2.2.21 · Ktor 3.1 · kotlinx.serialization · Coil 3 ·
-**Kermit 2.0.6** (logging) · **multiplatform-settings 1.3.0** (user settings) · **Navigation 3 1.1.1** · **Koin 4.1.1**.
+**Kermit 2.0.6** (logging) · **multiplatform-settings 1.3.0** (user settings) · **Navigation 3 1.1.1** · **Koin 4.1.1** · **KSafe 3.0.0** (secure storage) · Ktor Auth (bearer + token refresh).
 
 Font: [Manrope](https://github.com/sharanda/manrope) (SIL Open Font License, see `FONT_LICENSE_OFL.txt`).
