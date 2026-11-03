@@ -86,7 +86,7 @@ kotlin {
 
 android {
     namespace = "ua.chnu.recipes"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "ua.chnu.recipes"
