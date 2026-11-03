@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">Рецепти</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Пропустити</string>
+    <string name="onboarding_next">Далі</string>
+    <string name="onboarding_start">Почати</string>
+    <string name="onboarding_title_1">Рецепти з усього світу</string>
+    <string name="onboarding_text_1">Переглядайте добірку рецептів на кожен день: з часом приготування, складністю та калорійністю.</string>
+    <string name="onboarding_title_2">Швидкий пошук</string>
+    <string name="onboarding_text_2">Шукайте за назвою та обирайте тип страви: сніданок, обід або вечеря.</string>
+    <string name="onboarding_title_3">Готуйте крок за кроком</string>
+    <string name="onboarding_text_3">Інгредієнти й покрокові інструкції завжди під рукою. Мову та тему можна змінити в налаштуваннях.</string>
+
+    <!-- Recipe list -->
+    <string name="recipes_title">Рецепти</string>
+    <string name="recipes_subtitle">Що приготуємо сьогодні?</string>
+    <string name="search_hint">Пошук за назвою</string>
+    <string name="meal_all">Усі</string>
+    <string name="meal_breakfast">Сніданок</string>
+    <string name="meal_lunch">Обід</string>
+    <string name="meal_dinner">Вечеря</string>
+    <string name="minutes_short">%1$d хв</string>
+    <string name="kcal_short">%1$d ккал</string>
+    <string name="difficulty_easy">Легко</string>
+    <string name="difficulty_medium">Середньо</string>
+    <string name="difficulty_hard">Складно</string>
+    <string name="empty_results">Рецептів не знайдено</string>
+    <string name="load_error">Не вдалося завантажити рецепти. Перевірте підключення.</string>
+    <string name="retry">Спробувати ще раз</string>
+
+    <!-- Recipe details -->
+    <string name="back">Назад</string>
+    <string name="detail_prep">Підготовка</string>
+    <string name="detail_cook">Готування</string>
+    <string name="detail_servings">Порції</string>
+    <string name="detail_calories">Калорійність</string>
+    <string name="detail_reviews">(%1$d відгуків)</string>
+    <string name="detail_ingredients">Інгредієнти</string>
+    <string name="detail_instructions">Приготування</string>
+
+    <!-- Navigation + settings -->
+    <string name="nav_recipes">Рецепти</string>
+    <string name="nav_settings">Налаштування</string>
+    <string name="settings_title">Налаштування</string>
+    <string name="settings_language">Мова</string>
+    <string name="language_uk">Українська</string>
+    <string name="language_en">English</string>
+    <string name="settings_theme">Тема</string>
+    <string name="theme_system">Системна</string>
+    <string name="theme_light">Світла</string>
+    <string name="theme_dark">Темна</string>
+    <string name="settings_about">Про додаток</string>
+    <string name="settings_show_onboarding">Показати вступ знову</string>
+    <string name="settings_version">Версія</string>
+</resources>

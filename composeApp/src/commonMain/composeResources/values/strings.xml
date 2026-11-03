@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">Recipes</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_start">Get started</string>
+    <string name="onboarding_title_1">Recipes from around the world</string>
+    <string name="onboarding_text_1">Browse a selection of recipes for every day, with cooking time, difficulty and calories.</string>
+    <string name="onboarding_title_2">Quick search</string>
+    <string name="onboarding_text_2">Search by name and pick a meal type: breakfast, lunch or dinner.</string>
+    <string name="onboarding_title_3">Cook step by step</string>
+    <string name="onboarding_text_3">Ingredients and step-by-step instructions are always at hand. You can change the language and theme in settings.</string>
+
+    <!-- Recipe list -->
+    <string name="recipes_title">Recipes</string>
+    <string name="recipes_subtitle">What shall we cook today?</string>
+    <string name="search_hint">Search by name</string>
+    <string name="meal_all">All</string>
+    <string name="meal_breakfast">Breakfast</string>
+    <string name="meal_lunch">Lunch</string>
+    <string name="meal_dinner">Dinner</string>
+    <string name="minutes_short">%1$d min</string>
+    <string name="kcal_short">%1$d kcal</string>
+    <string name="difficulty_easy">Easy</string>
+    <string name="difficulty_medium">Medium</string>
+    <string name="difficulty_hard">Hard</string>
+    <string name="empty_results">No recipes found</string>
+    <string name="load_error">Could not load recipes. Check your connection.</string>
+    <string name="retry">Try again</string>
+
+    <!-- Recipe details -->
+    <string name="back">Back</string>
+    <string name="detail_prep">Prep time</string>
+    <string name="detail_cook">Cook time</string>
+    <string name="detail_servings">Servings</string>
+    <string name="detail_calories">Calories</string>
+    <string name="detail_reviews">(%1$d reviews)</string>
+    <string name="detail_ingredients">Ingredients</string>
+    <string name="detail_instructions">Instructions</string>
+
+    <!-- Navigation + settings -->
+    <string name="nav_recipes">Recipes</string>
+    <string name="nav_settings">Settings</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_language">Language</string>
+    <string name="language_uk">Українська</string>
+    <string name="language_en">English</string>
+    <string name="settings_theme">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="settings_about">About</string>
+    <string name="settings_show_onboarding">Show introduction again</string>
+    <string name="settings_version">Version</string>
+</resources>
