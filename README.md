@@ -1,4 +1,4 @@
-# Recipes — Kotlin Multiplatform REST API client (Лабораторна робота №4)
+# Recipes — Kotlin Multiplatform REST API client (Лабораторна робота №4–5)
 
 Compose Multiplatform app (Android, iOS, Desktop) that consumes the open
 [dummyjson](https://dummyjson.com/docs/recipes) **recipes** API.
@@ -16,6 +16,20 @@ Compose Multiplatform app (Android, iOS, Desktop) that consumes the open
 
 REST API client: Ktor (`data/RecipesApi.kt`) → `GET /recipes`, `/recipes/search?q=`, `/recipes/{id}`.
 
+## Lab 5 — navigation, DI, MVI, authorization
+
+| # | Requirement | Where |
+|---|-------------|-------|
+| 1 | Navigation 3 | `navigation/Routes.kt`, `NavDisplay` in `App.kt` |
+| 2 | Koin | `di/AppModule.kt`, `KoinApplication` in `App.kt` |
+| 3 | multiplatform-settings | `settings/AppSettings.kt` (used by `OnboardingRepositoryImpl`) |
+| 4 | Onboarding MVI + use case | `ui/onboarding/*Contract/ViewModel`, `SaveOnboardingResultUseCase` -> `OnboardingRepository` -> settings |
+| 5-6 | Auth screen + onboarding -> auth transition | `ui/auth/AuthScreen.kt`, `OnboardingRoute -> AuthRoute` |
+| 7-8 | Main ViewModel + start screen by onboarding result | `ui/main/MainViewModel.kt`, `IsOnboardingCompletedUseCase` |
+| 9 | Auth design, MVI, validation, keyboard actions | `ui/auth/` (`AuthValidator`, Next -> password, Done -> Sign in) |
+
+Flow: first launch `Onboarding -> Auth -> Recipes`; after onboarding is passed the app opens `Recipes` directly.
+
 ## Run
 
 * **Desktop:** `./gradlew :composeApp:run`
@@ -27,7 +41,7 @@ REST API client: Ktor (`data/RecipesApi.kt`) → `GET /recipes`, `/recipes/searc
 
 ## Libraries
 
-Compose Multiplatform 1.8.2 · Kotlin 2.1.21 · Ktor 3.1 · kotlinx.serialization · Coil 3 ·
-**Kermit 2.0.6** (logging) · **multiplatform-settings 1.3.0** (user settings).
+Compose Multiplatform 1.10.3 · Kotlin 2.2.21 · Ktor 3.1 · kotlinx.serialization · Coil 3 ·
+**Kermit 2.0.6** (logging) · **multiplatform-settings 1.3.0** (user settings) · **Navigation 3 1.1.1** · **Koin 4.1.1**.
 
 Font: [Manrope](https://github.com/sharanda/manrope) (SIL Open Font License, see `FONT_LICENSE_OFL.txt`).
