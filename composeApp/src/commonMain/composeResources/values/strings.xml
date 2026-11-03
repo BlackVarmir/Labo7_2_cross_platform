@@ -71,4 +71,9 @@
     <string name="auth_error_no_connection">No connection to the server. Check your internet</string>
     <string name="auth_error_server">The server is not available right now. Try again later</string>
     <string name="auth_error_unknown">Could not sign in. Try again</string>
+
+    <!-- Home + account -->
+    <string name="nav_home">Home</string>
+    <string name="settings_account">Account</string>
+    <string name="settings_sign_out">Sign out</string>
 </resources>

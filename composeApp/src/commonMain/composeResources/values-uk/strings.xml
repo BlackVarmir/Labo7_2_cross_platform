@@ -71,4 +71,9 @@
     <string name="auth_error_no_connection">Немає зв’язку із сервером. Перевірте інтернет</string>
     <string name="auth_error_server">Сервер зараз недоступний. Спробуйте пізніше</string>
     <string name="auth_error_unknown">Не вдалося увійти. Спробуйте ще раз</string>
+
+    <!-- Home + account -->
+    <string name="nav_home">Головна</string>
+    <string name="settings_account">Обліковий запис</string>
+    <string name="settings_sign_out">Вийти</string>
 </resources>

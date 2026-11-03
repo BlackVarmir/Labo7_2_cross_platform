@@ -14,6 +14,10 @@ data object OnboardingRoute : Route
 @Serializable
 data object AuthRoute : Route
 
+/** Empty home page the user lands on after a successful sign-in. */
+@Serializable
+data object HomeRoute : Route
+
 @Serializable
 data object RecipeListRoute : Route
 
