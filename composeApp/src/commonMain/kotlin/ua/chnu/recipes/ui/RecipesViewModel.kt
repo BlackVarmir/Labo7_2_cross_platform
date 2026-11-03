@@ -3,9 +3,10 @@ package ua.chnu.recipes.ui
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -23,8 +24,7 @@ enum class MealFilter(val apiValue: String?) {
 /** State holder for the recipe list screen (search + meal-type filter + loading/error state). */
 class RecipesViewModel(
     private val api: RecipesApi,
-    private val scope: CoroutineScope,
-) {
+) : ViewModel() {
     private val log = Logger.withTag("RecipesViewModel")
 
     var query by mutableStateOf("")
@@ -56,7 +56,7 @@ class RecipesViewModel(
 
     fun load(debounce: Boolean = false) {
         job?.cancel()
-        job = scope.launch {
+        job = viewModelScope.launch {
             if (debounce) delay(350)
             loading = true
             error = false
