@@ -53,4 +53,19 @@
     <string name="settings_about">Про додаток</string>
     <string name="settings_show_onboarding">Показати вступ знову</string>
     <string name="settings_version">Версія</string>
+
+    <!-- Authorization -->
+    <string name="auth_title">З поверненням</string>
+    <string name="auth_subtitle">Увійдіть, щоб продовжити</string>
+    <string name="auth_username">Ім’я користувача</string>
+    <string name="auth_password">Пароль</string>
+    <string name="auth_show_password">Показати</string>
+    <string name="auth_hide_password">Сховати</string>
+    <string name="auth_sign_in">Увійти</string>
+    <string name="auth_error_username_empty">Введіть ім’я користувача</string>
+    <string name="auth_error_username_short">Щонайменше %1$d символи</string>
+    <string name="auth_error_username_chars">Лише літери, цифри, \".\" та \"_\"</string>
+    <string name="auth_error_password_empty">Введіть пароль</string>
+    <string name="auth_error_password_short">Щонайменше %1$d символів</string>
+    <string name="auth_error_password_weak">Використайте літери та цифри</string>
 </resources>

@@ -53,4 +53,19 @@
     <string name="settings_about">About</string>
     <string name="settings_show_onboarding">Show introduction again</string>
     <string name="settings_version">Version</string>
+
+    <!-- Authorization -->
+    <string name="auth_title">Welcome back</string>
+    <string name="auth_subtitle">Sign in to continue</string>
+    <string name="auth_username">Username</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_show_password">Show</string>
+    <string name="auth_hide_password">Hide</string>
+    <string name="auth_sign_in">Sign in</string>
+    <string name="auth_error_username_empty">Enter your username</string>
+    <string name="auth_error_username_short">At least %1$d characters</string>
+    <string name="auth_error_username_chars">Only letters, digits, \".\" and \"_\" are allowed</string>
+    <string name="auth_error_password_empty">Enter your password</string>
+    <string name="auth_error_password_short">At least %1$d characters</string>
+    <string name="auth_error_password_weak">Use both letters and digits</string>
 </resources>
