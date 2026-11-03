@@ -72,6 +72,15 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
+
+            // Lab 6 libraries: Ktor bearer auth (token refresh) + KSafe (secure storage of the tokens)
+            implementation(libs.ktor.client.auth)
+            implementation(libs.ksafe)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.ktor.client.mock)
+            implementation(libs.kotlinx.coroutines.test)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
