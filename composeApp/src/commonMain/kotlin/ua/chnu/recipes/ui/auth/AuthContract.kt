@@ -1,5 +1,7 @@
 package ua.chnu.recipes.ui.auth
 
+import ua.chnu.recipes.domain.model.AuthFailure
+
 /** MVI contract of the authorization screen. */
 object AuthContract {
     data class State(
@@ -21,6 +23,10 @@ object AuthContract {
     }
 
     sealed interface Effect {
-        data object NavigateToMain : Effect
+        /** Signed in: open the home screen. */
+        data object NavigateToHome : Effect
+
+        /** The sign-in request failed: the screen shows [failure] in a snackbar. */
+        data class ShowError(val failure: AuthFailure) : Effect
     }
 }

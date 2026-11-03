@@ -67,4 +67,8 @@
     <string name="auth_error_username_chars">Лише літери, цифри, \".\" та \"_\"</string>
     <string name="auth_error_password_empty">Введіть пароль</string>
     <string name="auth_error_password_short">Щонайменше %1$d символів</string>
+    <string name="auth_error_invalid_credentials">Неправильне ім’я користувача або пароль</string>
+    <string name="auth_error_no_connection">Немає зв’язку із сервером. Перевірте інтернет</string>
+    <string name="auth_error_server">Сервер зараз недоступний. Спробуйте пізніше</string>
+    <string name="auth_error_unknown">Не вдалося увійти. Спробуйте ще раз</string>
 </resources>

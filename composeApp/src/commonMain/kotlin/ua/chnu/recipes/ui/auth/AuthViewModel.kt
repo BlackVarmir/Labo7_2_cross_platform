@@ -1,14 +1,18 @@
 package ua.chnu.recipes.ui.auth
 
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ua.chnu.recipes.domain.model.AuthException
+import ua.chnu.recipes.domain.model.AuthFailure
+import ua.chnu.recipes.domain.usecase.LoginUseCase
 import ua.chnu.recipes.ui.auth.AuthContract.Effect
 import ua.chnu.recipes.ui.auth.AuthContract.Intent
 import ua.chnu.recipes.ui.auth.AuthContract.State
 import ua.chnu.recipes.ui.mvi.MviViewModel
 
-class AuthViewModel : MviViewModel<State, Intent, Effect>(State()) {
+class AuthViewModel(
+    private val login: LoginUseCase,
+) : MviViewModel<State, Intent, Effect>(State()) {
 
     override fun onIntent(intent: Intent) {
         when (intent) {
@@ -39,9 +43,13 @@ class AuthViewModel : MviViewModel<State, Intent, Effect>(State()) {
 
         viewModelScope.launch {
             setState { copy(isLoading = true) }
-            delay(700) // there is no backend yet: imitate a network request
+            val result = login(current.username, current.password)
             setState { copy(isLoading = false) }
-            sendEffect(Effect.NavigateToMain)
+            result
+                .onSuccess { sendEffect(Effect.NavigateToHome) }
+                .onFailure { error ->
+                    sendEffect(Effect.ShowError((error as? AuthException)?.failure ?: AuthFailure.Unknown))
+                }
         }
     }
 }

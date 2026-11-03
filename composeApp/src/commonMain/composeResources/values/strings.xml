@@ -67,4 +67,8 @@
     <string name="auth_error_username_chars">Only letters, digits, \".\" and \"_\" are allowed</string>
     <string name="auth_error_password_empty">Enter your password</string>
     <string name="auth_error_password_short">At least %1$d characters</string>
+    <string name="auth_error_invalid_credentials">Wrong username or password</string>
+    <string name="auth_error_no_connection">No connection to the server. Check your internet</string>
+    <string name="auth_error_server">The server is not available right now. Try again later</string>
+    <string name="auth_error_unknown">Could not sign in. Try again</string>
 </resources>
