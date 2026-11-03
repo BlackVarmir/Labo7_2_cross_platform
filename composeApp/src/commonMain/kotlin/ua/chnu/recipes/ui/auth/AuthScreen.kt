@@ -40,7 +40,6 @@ import org.jetbrains.compose.resources.stringResource
 import ua.chnu.recipes.resources.Res
 import ua.chnu.recipes.resources.auth_error_password_empty
 import ua.chnu.recipes.resources.auth_error_password_short
-import ua.chnu.recipes.resources.auth_error_password_weak
 import ua.chnu.recipes.resources.auth_error_username_chars
 import ua.chnu.recipes.resources.auth_error_username_empty
 import ua.chnu.recipes.resources.auth_error_username_short
@@ -173,5 +172,4 @@ private fun UsernameError.message(): String = when (this) {
 private fun PasswordError.message(): String = when (this) {
     PasswordError.Empty -> stringResource(Res.string.auth_error_password_empty)
     PasswordError.TooShort -> stringResource(Res.string.auth_error_password_short, AuthValidator.MIN_PASSWORD_LENGTH)
-    PasswordError.Weak -> stringResource(Res.string.auth_error_password_weak)
 }

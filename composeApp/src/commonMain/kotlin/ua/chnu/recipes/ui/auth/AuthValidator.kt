@@ -2,7 +2,7 @@ package ua.chnu.recipes.ui.auth
 
 enum class UsernameError { Empty, TooShort, InvalidChars }
 
-enum class PasswordError { Empty, TooShort, Weak }
+enum class PasswordError { Empty, TooShort }
 
 /** Validation rules of the sign-in form. Returns null when the value is valid. */
 object AuthValidator {
@@ -19,7 +19,6 @@ object AuthValidator {
     fun validatePassword(password: String): PasswordError? = when {
         password.isEmpty() -> PasswordError.Empty
         password.length < MIN_PASSWORD_LENGTH -> PasswordError.TooShort
-        !(password.any { it.isLetter() } && password.any { it.isDigit() }) -> PasswordError.Weak
         else -> null
     }
 }
