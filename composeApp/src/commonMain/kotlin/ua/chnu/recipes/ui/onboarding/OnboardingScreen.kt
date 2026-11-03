@@ -23,7 +23,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,7 +40,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import ua.chnu.recipes.resources.Res
@@ -49,6 +52,8 @@ import ua.chnu.recipes.resources.onboarding_text_3
 import ua.chnu.recipes.resources.onboarding_title_1
 import ua.chnu.recipes.resources.onboarding_title_2
 import ua.chnu.recipes.resources.onboarding_title_3
+import ua.chnu.recipes.ui.onboarding.OnboardingContract.Effect
+import ua.chnu.recipes.ui.onboarding.OnboardingContract.Intent
 import ua.chnu.recipes.ui.theme.Basil
 import ua.chnu.recipes.ui.theme.BasilDark
 import ua.chnu.recipes.ui.theme.Ink
@@ -60,12 +65,32 @@ private val titles: List<StringResource> =
 private val texts: List<StringResource> =
     listOf(Res.string.onboarding_text_1, Res.string.onboarding_text_2, Res.string.onboarding_text_3)
 
-/** First-launch introduction: a 3-slide HorizontalPager with dots, "Skip" and "Next / Get started". */
+/**
+ * First-launch introduction: a 3-slide HorizontalPager with dots, "Skip" and "Next / Get started".
+ * Follows MVI: the screen renders [OnboardingContract.State], sends [OnboardingContract.Intent]s
+ * and reacts to one-shot [OnboardingContract.Effect]s.
+ */
 @Composable
-fun OnboardingScreen(onFinish: () -> Unit) {
-    val pagerState = rememberPagerState(pageCount = { titles.size })
-    val scope = rememberCoroutineScope()
-    val isLast = pagerState.currentPage == titles.lastIndex
+fun OnboardingScreen(
+    viewModel: OnboardingViewModel,
+    onNavigateToAuth: () -> Unit,
+) {
+    val state by viewModel.state.collectAsState()
+    val pagerState = rememberPagerState(pageCount = { state.pageCount })
+    val currentOnNavigateToAuth by rememberUpdatedState(onNavigateToAuth)
+
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { viewModel.onIntent(Intent.PageChanged(it)) }
+    }
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is Effect.ScrollToPage -> pagerState.animateScrollToPage(effect.page)
+                Effect.NavigateToAuth -> currentOnNavigateToAuth()
+            }
+        }
+    }
+    val isLast = state.isLast
 
     Column(
         Modifier
@@ -75,7 +100,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             .padding(24.dp)
     ) {
         Row(Modifier.fillMaxWidth().height(44.dp), horizontalArrangement = Arrangement.End) {
-            TextButton(onClick = onFinish) {
+            TextButton(onClick = { viewModel.onIntent(Intent.SkipClicked) }) {
                 Text(
                     stringResource(Res.string.onboarding_skip),
                     style = MaterialTheme.typography.labelLarge,
@@ -107,9 +132,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
         }
 
         Button(
-            onClick = {
-                if (isLast) onFinish() else scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
-            },
+            onClick = { viewModel.onIntent(Intent.NextClicked) },
             modifier = Modifier.fillMaxWidth().height(56.dp),
             shape = RoundedCornerShape(16.dp),
         ) {
