@@ -35,6 +35,8 @@ import ua.chnu.recipes.resources.Res
 import ua.chnu.recipes.resources.language_en
 import ua.chnu.recipes.resources.language_uk
 import ua.chnu.recipes.resources.settings_about
+import ua.chnu.recipes.resources.settings_account
+import ua.chnu.recipes.resources.settings_sign_out
 import ua.chnu.recipes.resources.settings_language
 import ua.chnu.recipes.resources.settings_show_onboarding
 import ua.chnu.recipes.resources.settings_theme
@@ -55,6 +57,7 @@ fun SettingsScreen(
     themeMode: ThemeMode,
     onThemeModeChange: (ThemeMode) -> Unit,
     onShowOnboarding: () -> Unit,
+    onSignOut: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -113,6 +116,19 @@ fun SettingsScreen(
                     Text(stringResource(Res.string.settings_version), style = MaterialTheme.typography.titleMedium)
                     Text(APP_VERSION, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
+            }
+        }
+
+        SettingsGroup(stringResource(Res.string.settings_account)) {
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(onClick = onSignOut).padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    stringResource(Res.string.settings_sign_out),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.error,
+                )
             }
         }
         Spacer(Modifier.height(8.dp))

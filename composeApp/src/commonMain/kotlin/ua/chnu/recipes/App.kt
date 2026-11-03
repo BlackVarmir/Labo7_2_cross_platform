@@ -3,6 +3,7 @@ package ua.chnu.recipes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -13,13 +14,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import co.touchlab.kermit.Logger
+import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -36,6 +41,7 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import ua.chnu.recipes.di.appModule
 import ua.chnu.recipes.navigation.AuthRoute
+import ua.chnu.recipes.navigation.HomeRoute
 import ua.chnu.recipes.navigation.OnboardingRoute
 import ua.chnu.recipes.navigation.RecipeDetailRoute
 import ua.chnu.recipes.navigation.RecipeListRoute
@@ -50,10 +56,14 @@ import org.jetbrains.compose.resources.stringResource
 import ua.chnu.recipes.platform.LocalAppLocale
 import ua.chnu.recipes.platform.rememberPlatformModule
 import ua.chnu.recipes.resources.Res
+import ua.chnu.recipes.resources.nav_home
 import ua.chnu.recipes.resources.nav_recipes
 import ua.chnu.recipes.resources.nav_settings
 import ua.chnu.recipes.settings.AppSettings
+import ua.chnu.recipes.domain.usecase.LogoutUseCase
+import ua.chnu.recipes.domain.usecase.ObserveAuthStateUseCase
 import ua.chnu.recipes.ui.detail.RecipeDetailScreen
+import ua.chnu.recipes.ui.home.HomeScreen
 import ua.chnu.recipes.ui.list.RecipeListScreen
 import ua.chnu.recipes.ui.onboarding.OnboardingScreen
 import ua.chnu.recipes.ui.settings.SettingsScreen
@@ -67,6 +77,7 @@ private val navConfig = SavedStateConfiguration {
         polymorphic(NavKey::class) {
             subclass(OnboardingRoute::class, OnboardingRoute.serializer())
             subclass(AuthRoute::class, AuthRoute.serializer())
+            subclass(HomeRoute::class, HomeRoute.serializer())
             subclass(RecipeListRoute::class, RecipeListRoute.serializer())
             subclass(SettingsRoute::class, SettingsRoute.serializer())
             subclass(RecipeDetailRoute::class, RecipeDetailRoute.serializer())
@@ -96,6 +107,23 @@ private fun AppContent() {
     // Back stack lives outside of key(language) so that changing the language keeps the current screen.
     val backStack = rememberNavBackStack(navConfig, mainViewModel.startRoute)
 
+    // The "user is signed in" flag drives the navigation: when it drops (sign-out, or the refresh token
+    // was rejected and the session expired) every screen behind the sign-in is replaced by the sign-in screen.
+    val isAuthorized by koinInject<ObserveAuthStateUseCase>()().collectAsState()
+    val logout = koinInject<LogoutUseCase>()
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(isAuthorized) {
+        val current = backStack.lastOrNull()
+        if (!isAuthorized && current != null && current !is AuthRoute && current !is OnboardingRoute) {
+            log.i { "user is not authorized any more -> sign-in screen" }
+            backStack.replaceAllWith(AuthRoute)
+        }
+    }
+
+    val onTabSelected: (MainTab) -> Unit = { tab ->
+        if (backStack.lastOrNull() != tab.route) backStack.replaceAllWith(tab.route)
+    }
+
     var language by remember { mutableStateOf(settings.language) }
     var themeMode by remember { mutableStateOf(settings.themeMode) }
 
@@ -115,21 +143,22 @@ private fun AppContent() {
                         entry<OnboardingRoute> {
                             OnboardingScreen(
                                 viewModel = koinViewModel(),
-                                onNavigateToAuth = { backStack.replaceAllWith(AuthRoute) },
+                                onNavigateToAuth = { backStack.replaceAllWith(if (isAuthorized) HomeRoute else AuthRoute) },
                             )
                         }
                         entry<AuthRoute> {
                             AuthScreen(
                                 viewModel = koinViewModel(),
-                                onSignedIn = { backStack.replaceAllWith(RecipeListRoute) },
+                                onSignedIn = { backStack.replaceAllWith(HomeRoute) },
                             )
                         }
+                        entry<HomeRoute> {
+                            MainScaffold(selected = MainTab.Home, onSelect = onTabSelected) { padding ->
+                                HomeScreen(modifier = Modifier.padding(padding))
+                            }
+                        }
                         entry<RecipeListRoute> {
-                            MainScaffold(
-                                showSettings = false,
-                                onRecipes = {},
-                                onSettings = { backStack.add(SettingsRoute) },
-                            ) { padding ->
+                            MainScaffold(selected = MainTab.Recipes, onSelect = onTabSelected) { padding ->
                                 RecipeListScreen(
                                     viewModel = koinViewModel(),
                                     onRecipeClick = { backStack.add(RecipeDetailRoute(it)) },
@@ -138,11 +167,7 @@ private fun AppContent() {
                             }
                         }
                         entry<SettingsRoute> {
-                            MainScaffold(
-                                showSettings = true,
-                                onRecipes = { backStack.removeLastOrNull() },
-                                onSettings = {},
-                            ) { padding ->
+                            MainScaffold(selected = MainTab.Settings, onSelect = onTabSelected) { padding ->
                                 SettingsScreen(
                                     language = language,
                                     onLanguageChange = {
@@ -156,6 +181,7 @@ private fun AppContent() {
                                         themeMode = it
                                     },
                                     onShowOnboarding = { backStack.replaceAllWith(OnboardingRoute) },
+                                    onSignOut = { scope.launch { logout() } },
                                     modifier = Modifier.padding(padding),
                                 )
                             }
@@ -180,11 +206,17 @@ private fun NavBackStack<NavKey>.replaceAllWith(route: Route) {
     add(route)
 }
 
+/** Tabs of the bottom navigation bar. */
+private enum class MainTab(val route: Route) {
+    Home(HomeRoute),
+    Recipes(RecipeListRoute),
+    Settings(SettingsRoute),
+}
+
 @Composable
 private fun MainScaffold(
-    showSettings: Boolean,
-    onRecipes: () -> Unit,
-    onSettings: () -> Unit,
+    selected: MainTab,
+    onSelect: (MainTab) -> Unit,
     content: @Composable (androidx.compose.foundation.layout.PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -198,20 +230,35 @@ private fun MainScaffold(
                     unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                NavigationBarItem(
-                    selected = !showSettings,
-                    onClick = onRecipes,
-                    icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
-                    label = { Text(stringResource(Res.string.nav_recipes), style = MaterialTheme.typography.labelSmall) },
-                    colors = colors,
-                )
-                NavigationBarItem(
-                    selected = showSettings,
-                    onClick = onSettings,
-                    icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                    label = { Text(stringResource(Res.string.nav_settings), style = MaterialTheme.typography.labelSmall) },
-                    colors = colors,
-                )
+                MainTab.entries.forEach { tab ->
+                    NavigationBarItem(
+                        selected = tab == selected,
+                        onClick = { onSelect(tab) },
+                        icon = {
+                            Icon(
+                                when (tab) {
+                                    MainTab.Home -> Icons.Default.Home
+                                    MainTab.Recipes -> Icons.AutoMirrored.Filled.List
+                                    MainTab.Settings -> Icons.Default.Settings
+                                },
+                                contentDescription = null,
+                            )
+                        },
+                        label = {
+                            Text(
+                                stringResource(
+                                    when (tab) {
+                                        MainTab.Home -> Res.string.nav_home
+                                        MainTab.Recipes -> Res.string.nav_recipes
+                                        MainTab.Settings -> Res.string.nav_settings
+                                    }
+                                ),
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        },
+                        colors = colors,
+                    )
+                }
             }
         },
         content = content,
