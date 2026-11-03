@@ -48,6 +48,7 @@ import coil3.compose.setSingletonImageLoaderFactory
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import org.jetbrains.compose.resources.stringResource
 import ua.chnu.recipes.platform.LocalAppLocale
+import ua.chnu.recipes.platform.rememberPlatformModule
 import ua.chnu.recipes.resources.Res
 import ua.chnu.recipes.resources.nav_recipes
 import ua.chnu.recipes.resources.nav_settings
@@ -81,7 +82,8 @@ fun App() {
             .build()
     }
 
-    KoinApplication(application = { modules(appModule) }) {
+    val platformModule = rememberPlatformModule()
+    KoinApplication(application = { modules(appModule, platformModule) }) {
         AppContent()
     }
 }
