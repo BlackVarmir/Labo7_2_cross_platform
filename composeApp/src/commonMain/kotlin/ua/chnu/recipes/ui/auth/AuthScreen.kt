@@ -4,6 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -61,6 +64,8 @@ import ua.chnu.recipes.resources.auth_sign_in
 import ua.chnu.recipes.resources.auth_subtitle
 import ua.chnu.recipes.resources.auth_title
 import ua.chnu.recipes.resources.auth_username
+import ua.chnu.recipes.ui.adaptive.WindowWidth
+import ua.chnu.recipes.ui.adaptive.rememberWindowSize
 import ua.chnu.recipes.ui.auth.AuthContract.Effect
 import ua.chnu.recipes.ui.auth.AuthContract.Intent
 
@@ -107,84 +112,109 @@ fun AuthScreen(
         viewModel.onIntent(Intent.SignInClicked)
     }
 
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .safeDrawingPadding()
-                .imePadding()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 32.dp),
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                stringResource(Res.string.auth_title),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                stringResource(Res.string.auth_subtitle),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(Modifier.height(32.dp))
+    val windowSize = rememberWindowSize()
+    val sideBySide = windowSize.width == WindowWidth.Expanded || windowSize.isLandscapeCompactHeight
 
-            OutlinedTextField(
-                value = state.username,
-                onValueChange = { viewModel.onIntent(Intent.UsernameChanged(it)) },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(Res.string.auth_username)) },
-                singleLine = true,
-                isError = state.usernameError != null,
-                supportingText = state.usernameError?.let { { Text(it.message()) } },
-                shape = RoundedCornerShape(16.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
-            )
-            Spacer(Modifier.height(12.dp))
+    // Header (title + subtitle) and the form are separate so that every window size class can arrange them differently.
+    val form: @Composable () -> Unit = {
+        OutlinedTextField(
+            value = state.username,
+            onValueChange = { viewModel.onIntent(Intent.UsernameChanged(it)) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(Res.string.auth_username)) },
+            singleLine = true,
+            isError = state.usernameError != null,
+            supportingText = state.usernameError?.let { { Text(it.message()) } },
+            shape = RoundedCornerShape(16.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+        )
+        Spacer(Modifier.height(12.dp))
 
-            OutlinedTextField(
-                value = state.password,
-                onValueChange = { viewModel.onIntent(Intent.PasswordChanged(it)) },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(Res.string.auth_password)) },
-                singleLine = true,
-                isError = state.passwordError != null,
-                supportingText = state.passwordError?.let { { Text(it.message()) } },
-                visualTransformation = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    TextButton(onClick = { viewModel.onIntent(Intent.TogglePasswordVisibility) }) {
-                        Text(
-                            stringResource(
-                                if (state.passwordVisible) Res.string.auth_hide_password else Res.string.auth_show_password
-                            ),
-                            style = MaterialTheme.typography.labelLarge,
-                        )
-                    }
-                },
-                shape = RoundedCornerShape(16.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { signIn() }),
-            )
-            Spacer(Modifier.height(24.dp))
-
-            Button(
-                onClick = { signIn() },
-                enabled = !state.isLoading,
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(
-                        Modifier.size(24.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary,
+        OutlinedTextField(
+            value = state.password,
+            onValueChange = { viewModel.onIntent(Intent.PasswordChanged(it)) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(Res.string.auth_password)) },
+            singleLine = true,
+            isError = state.passwordError != null,
+            supportingText = state.passwordError?.let { { Text(it.message()) } },
+            visualTransformation = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                TextButton(onClick = { viewModel.onIntent(Intent.TogglePasswordVisibility) }) {
+                    Text(
+                        stringResource(
+                            if (state.passwordVisible) Res.string.auth_hide_password else Res.string.auth_show_password
+                        ),
+                        style = MaterialTheme.typography.labelLarge,
                     )
-                } else {
-                    Text(stringResource(Res.string.auth_sign_in), style = MaterialTheme.typography.titleMedium)
                 }
+            },
+            shape = RoundedCornerShape(16.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { signIn() }),
+        )
+        Spacer(Modifier.height(24.dp))
+
+        Button(
+            onClick = { signIn() },
+            enabled = !state.isLoading,
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            if (state.isLoading) {
+                CircularProgressIndicator(
+                    Modifier.size(24.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                )
+            } else {
+                Text(stringResource(Res.string.auth_sign_in), style = MaterialTheme.typography.titleMedium)
+            }
+        }
+    }
+
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        when {
+            // Expanded window (desktop, large tablet) or phone in landscape: brand panel on the left, form on the right.
+            sideBySide -> Row(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
+                Box(
+                    Modifier.weight(1f).fillMaxHeight().background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(Modifier.widthIn(max = 420.dp).padding(32.dp)) { AuthHeader() }
+                }
+                Box(
+                    Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(Modifier.widthIn(max = 420.dp).padding(horizontal = 24.dp, vertical = 32.dp)) { form() }
+                }
+            }
+            // Medium window (tablet in portrait): the same column, centered and not wider than 480dp.
+            windowSize.width == WindowWidth.Medium -> Box(
+                Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(Modifier.widthIn(max = 480.dp).padding(horizontal = 24.dp, vertical = 32.dp)) {
+                    AuthHeader()
+                    Spacer(Modifier.height(32.dp))
+                    form()
+                }
+            }
+            // Compact window (phone in portrait): full-width column.
+            else -> Column(
+                Modifier
+                    .fillMaxSize()
+                    .safeDrawingPadding()
+                    .imePadding()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp, vertical = 32.dp),
+                verticalArrangement = Arrangement.Center,
+            ) {
+                AuthHeader()
+                Spacer(Modifier.height(32.dp))
+                form()
             }
         }
         SnackbarHost(
@@ -192,6 +222,21 @@ fun AuthScreen(
             modifier = Modifier.align(Alignment.BottomCenter).safeDrawingPadding().imePadding().padding(16.dp),
         )
     }
+}
+
+@Composable
+private fun AuthHeader() {
+    Text(
+        stringResource(Res.string.auth_title),
+        style = MaterialTheme.typography.headlineMedium,
+        color = MaterialTheme.colorScheme.onBackground,
+    )
+    Spacer(Modifier.height(8.dp))
+    Text(
+        stringResource(Res.string.auth_subtitle),
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 @Composable
