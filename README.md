@@ -1,4 +1,4 @@
-# Recipes — Kotlin Multiplatform REST API client (Лабораторна робота №4–6)
+# Recipes — Kotlin Multiplatform REST API client (Лабораторна робота №4–7)
 
 Compose Multiplatform app (Android, iOS, Desktop) that consumes the open
 [dummyjson](https://dummyjson.com/docs/recipes) **recipes** API.
@@ -55,6 +55,19 @@ Tests (`./gradlew :composeApp:desktopTest`): login/errors, `401 -> refresh -> re
 
 Note for Linux desktop: KSafe keeps its key in the OS secret store (libsecret / KWallet). If it is locked or there is
 no D-Bus session, the tokens are kept only in memory for the current run and the user signs in again after a restart.
+
+## Lab 7 — adaptive layouts (WindowSizeClass)
+
+`ui/adaptive/WindowSize.kt` wraps `currentWindowAdaptiveInfo().windowSizeClass`
+(`org.jetbrains.compose.material3.adaptive:adaptive`) into `WindowSize(width, height)` with
+Compact (<600dp) / Medium (600-839dp) / Expanded (>=840dp) buckets; it is recalculated on resize and rotation.
+
+| Screen | Compact (phone, portrait) | Medium (tablet, portrait) | Expanded (desktop, tablet landscape) / phone landscape |
+|--------|---------------------------|---------------------------|--------------------------------------------------------|
+| Onboarding (`ui/onboarding/OnboardingScreen.kt`) | one column: illustration above the text | illustration and text side by side, content up to 960dp, compact button | same, bigger illustration |
+| Login (`ui/auth/AuthScreen.kt`) | full-width column | centered column, up to 480dp | two panes: title panel on the left, form on the right |
+
+Try it on desktop by resizing the window; on Android by rotating the device or using a tablet emulator.
 
 ## Run
 
