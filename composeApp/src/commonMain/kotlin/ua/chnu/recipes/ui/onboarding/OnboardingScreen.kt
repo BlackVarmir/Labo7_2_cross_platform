@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -39,6 +40,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -52,6 +54,8 @@ import ua.chnu.recipes.resources.onboarding_text_3
 import ua.chnu.recipes.resources.onboarding_title_1
 import ua.chnu.recipes.resources.onboarding_title_2
 import ua.chnu.recipes.resources.onboarding_title_3
+import ua.chnu.recipes.ui.adaptive.WindowSize
+import ua.chnu.recipes.ui.adaptive.rememberWindowSize
 import ua.chnu.recipes.ui.onboarding.OnboardingContract.Effect
 import ua.chnu.recipes.ui.onboarding.OnboardingContract.Intent
 import ua.chnu.recipes.ui.theme.Basil
@@ -91,13 +95,20 @@ fun OnboardingScreen(
         }
     }
     val isLast = state.isLast
+    // Window size class decides between the one-column (compact) and the side-by-side (medium/expanded) layout.
+    val windowSize = rememberWindowSize()
+    val twoPanes = windowSize.useTwoPanes
 
+    Box(
+        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).safeDrawingPadding(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
     Column(
         Modifier
+            .widthIn(max = if (twoPanes) 960.dp else Dp.Unspecified)
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .safeDrawingPadding()
-            .padding(24.dp)
+            .padding(if (windowSize.isLandscapeCompactHeight) 16.dp else 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(Modifier.fillMaxWidth().height(44.dp), horizontalArrangement = Arrangement.End) {
             TextButton(onClick = { viewModel.onIntent(Intent.SkipClicked) }) {
@@ -110,11 +121,11 @@ fun OnboardingScreen(
         }
 
         HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { page ->
-            OnboardingPage(page)
+            if (twoPanes) OnboardingPageWide(page, windowSize) else OnboardingPage(page)
         }
 
         Row(
-            Modifier.fillMaxWidth().padding(vertical = 24.dp),
+            Modifier.fillMaxWidth().padding(vertical = if (windowSize.isLandscapeCompactHeight) 8.dp else 24.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -133,13 +144,56 @@ fun OnboardingScreen(
 
         Button(
             onClick = { viewModel.onIntent(Intent.NextClicked) },
-            modifier = Modifier.fillMaxWidth().height(56.dp),
+            modifier = (if (twoPanes) Modifier.widthIn(max = 360.dp).fillMaxWidth() else Modifier.fillMaxWidth())
+                .height(56.dp),
             shape = RoundedCornerShape(16.dp),
         ) {
             Text(
                 stringResource(if (isLast) Res.string.onboarding_start else Res.string.onboarding_next),
                 style = MaterialTheme.typography.titleMedium,
             )
+        }
+    }
+    }
+}
+
+/** Medium / expanded windows (tablet, desktop, phone in landscape): illustration on the left, text on the right. */
+@Composable
+private fun OnboardingPageWide(page: Int, windowSize: WindowSize) {
+    Row(
+        Modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.spacedBy(48.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+            OnboardingIllustration(page, if (windowSize.isLandscapeCompactHeight) 240.dp else 320.dp)
+        }
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+            Text(
+                stringResource(titles[page]),
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                stringResource(texts[page]),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun OnboardingIllustration(page: Int, size: Dp) {
+    Box(
+        Modifier.size(size).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer),
+        contentAlignment = Alignment.Center,
+    ) {
+        when (page) {
+            0 -> BowlIllustration()
+            1 -> SearchIllustration()
+            else -> TimerIllustration()
         }
     }
 }
@@ -151,19 +205,7 @@ private fun OnboardingPage(page: Int) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            Box(
-                Modifier
-                    .size(280.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center,
-            ) {
-                when (page) {
-                    0 -> BowlIllustration()
-                    1 -> SearchIllustration()
-                    else -> TimerIllustration()
-                }
-            }
+            OnboardingIllustration(page, 280.dp)
         }
         Text(
             stringResource(titles[page]),
