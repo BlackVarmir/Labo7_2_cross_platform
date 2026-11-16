@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.widthIn
@@ -64,6 +65,7 @@ import ua.chnu.recipes.resources.auth_sign_in
 import ua.chnu.recipes.resources.auth_subtitle
 import ua.chnu.recipes.resources.auth_title
 import ua.chnu.recipes.resources.auth_username
+import ua.chnu.recipes.ui.adaptive.CenteredScrollColumn
 import ua.chnu.recipes.ui.adaptive.WindowWidth
 import ua.chnu.recipes.ui.adaptive.rememberWindowSize
 import ua.chnu.recipes.ui.auth.AuthContract.Effect
@@ -184,33 +186,30 @@ fun AuthScreen(
                 ) {
                     Column(Modifier.widthIn(max = 420.dp).padding(32.dp)) { AuthHeader() }
                 }
-                Box(
-                    Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
-                    contentAlignment = Alignment.Center,
+                CenteredScrollColumn(
+                    Modifier.weight(1f).fillMaxHeight(),
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Column(Modifier.widthIn(max = 420.dp).padding(horizontal = 24.dp, vertical = 32.dp)) { form() }
+                    Column(Modifier.widthIn(max = 420.dp)) { form() }
                 }
             }
             // Medium window (tablet in portrait): the same column, centered and not wider than 480dp.
-            windowSize.width == WindowWidth.Medium -> Box(
-                Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()),
-                contentAlignment = Alignment.Center,
+            windowSize.width == WindowWidth.Medium -> CenteredScrollColumn(
+                Modifier.fillMaxSize().safeDrawingPadding().imePadding(),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Column(Modifier.widthIn(max = 480.dp).padding(horizontal = 24.dp, vertical = 32.dp)) {
+                Column(Modifier.widthIn(max = 480.dp)) {
                     AuthHeader()
                     Spacer(Modifier.height(32.dp))
                     form()
                 }
             }
             // Compact window (phone in portrait): full-width column.
-            else -> Column(
-                Modifier
-                    .fillMaxSize()
-                    .safeDrawingPadding()
-                    .imePadding()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp, vertical = 32.dp),
-                verticalArrangement = Arrangement.Center,
+            else -> CenteredScrollColumn(
+                Modifier.fillMaxSize().safeDrawingPadding().imePadding(),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 32.dp),
             ) {
                 AuthHeader()
                 Spacer(Modifier.height(32.dp))
