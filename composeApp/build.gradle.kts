@@ -76,6 +76,9 @@ kotlin {
             // Lab 6 libraries: Ktor bearer auth (token refresh) + KSafe (secure storage of the tokens)
             implementation(libs.ktor.client.auth)
             implementation(libs.ksafe)
+
+            // Lab 7 library: WindowSizeClass for adaptive layouts
+            implementation(libs.compose.adaptive)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
